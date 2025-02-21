@@ -23,7 +23,7 @@ class crudRepository {
   async get(data) {
       const response = await this.model.findByPk(data);
       if(!response){
-          throw new AppError('Not able to find the respurce', StatusCodes.NOT_FOUND);
+          throw new AppError('Not able to find the resource', StatusCodes.NOT_FOUND);
       }
       return response;
     
@@ -37,8 +37,16 @@ class crudRepository {
 
     async update(id , data) { // data is the object to be updated eg. {name: "new name"}
         const response = await this.model.update(data, { where: { id } });
+        // response[0] is the number of rows affected so if it is 0 then no rows are updated
+        if(response[0] === 0){
+            throw new AppError('Not able to update the resource', StatusCodes.NOT_FOUND);
+        }
         return response;
+    }
 
+    async updateAll(data) {
+        const response = await this.model.update(data);
+        return response;
     }
 
 }
