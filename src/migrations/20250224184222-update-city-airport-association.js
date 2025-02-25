@@ -12,11 +12,10 @@ module.exports = {
         field: 'id'
       },
       onDelete: 'CASCADE', // this means that if a City is deleted, then all the Airports associated with it will be deleted
-      onUpdate: 'CASCADE'  // Cascade means that if the primary key is updated, then all the foreign keys will be updated as well
     })
   },
 
   async down (queryInterface, Sequelize) {
-    await queryInterface.removeConstraint('Airports', 'city_foreign_ket_constraint');
+    await queryInterface.removeConstraint('Airports', 'city_foreign_key_constraint');
   }
 };
