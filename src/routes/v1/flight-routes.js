@@ -11,5 +11,10 @@ router.post('/',
       FlightController.createFlight
 );
 
+// /api/v1/flights?trips=LKO-DEL  GET
+router.get('/',
+      FlightController.getAllFlights
+);
+
 
 module.exports = router;
