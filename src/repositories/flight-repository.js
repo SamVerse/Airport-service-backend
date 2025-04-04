@@ -49,16 +49,24 @@ class FlightRepository extends CrudRepository {
     }
 
     async updateRemainingSeats(flightId, seats, dec = 1){
+        const transaction = await db.sequelize.transaction();
         // Here we are using the sequelize query to lock the row for update so that no other transaction can update the row until this transaction is completed
-        await db.sequelize.query(addRowLockOnFlightsQuery(flightId));
-        // We are going to use decrement method given by sequelize to update the remaining seats
-        // We are going to decrement the totalSeats by the number of seats booked
-        // If dec is true then it will decrement the totalSeats else it will increment the totalSeats
-        if(parseInt(dec)){
-            return await Flight.decrement('totalSeats', { by: seats, where: { id: flightId } });    
-        }else{
-            return await Flight.increment('totalSeats', { by: seats, where: { id: flightId } });  
-        }
+        try {
+            await db.sequelize.query(addRowLockOnFlightsQuery(flightId));
+            // We are going to use decrement method given by sequelize to update the remaining seats
+            // We are going to decrement the totalSeats by the number of seats booked
+            // If dec is true then it will decrement the totalSeats else it will increment the totalSeats
+            
+            if(parseInt(dec)){
+                await Flight.decrement('totalSeats', { by: seats, where: { id: flightId } }, { transaction});
+            }else{
+                await Flight.increment('totalSeats', { by: seats, where: { id: flightId } }, { transaction});  
+            }
+            await transaction.commit(); // commit the transaction after the update is done
+        } catch (error) {
+            await transaction.rollback();
+            throw error;
+        }        
     }
 }
 
